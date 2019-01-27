@@ -1,6 +1,7 @@
 /*jshint camelcase: false*/
 // Generated on 2013-05-02 using generator-chrome-extension 0.1.1
 'use strict';
+const sass = require('node-sass');
 var mountFolder = function (connect, dir) {
     return connect.static(require('path').resolve(dir));
 };
@@ -32,9 +33,9 @@ module.exports = function (grunt) {
                 files: ['test/spec/{,*/}*.coffee'],
                 tasks: ['coffee:test']
             },
-            compass: {
+            sass: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-                tasks: ['copy:prepare', 'compass:server']
+                tasks: ['copy:prepare', 'sass']
             },
         },
         connect: {
@@ -77,14 +78,6 @@ module.exports = function (grunt) {
                 'test/spec/{,*/}*.js'
             ]
         },
-        mocha: {
-            all: {
-                options: {
-                    run: true,
-                    urls: ['http://localhost:<%= connect.options.port %>/index.html']
-                }
-            }
-        },
         coffee: {
             dist: {
                 files: [{
@@ -105,30 +98,18 @@ module.exports = function (grunt) {
                 }]
             }
         },
-        compass: {
+        sass: {
             options: {
-                sassDir: '<%= yeoman.app %>/styles',
-                cssDir: '.tmp/styles',
-                imagesDir: '<%= yeoman.app %>/images',
-                javascriptsDir: '<%= yeoman.app %>/scripts',
-                fontsDir: '<%= yeoman.app %>/styles/fonts',
-                importPath: ['<%= yeoman.app %>/components', '.tmp/components'],
-                relativeAssets: true
+                implementation: sass,
+                sourceMap: true
             },
-            dist: {},
-            server: {
-                options: {
-                    debugInfo: true
-                }
-            }
-        },
-        imagemin: {
             dist: {
                 files: [{
                     expand: true,
-                    cwd: '<%= yeoman.app %>/images',
-                    src: '{,*/}*.{png,jpg,jpeg}',
-                    dest: '<%= yeoman.dist %>/images'
+                    cwd: '<%= yeoman.app %>/styles',
+                    src: ['*.scss'],
+                    dest: '.tmp/styles',
+                    ext: '.css'
                 }]
             }
         },
@@ -204,7 +185,7 @@ module.exports = function (grunt) {
                     dest: '<%= yeoman.dist %>',
                     src: [
                         '*.{ico,txt}',
-                        'images/{,*/}*.{webp,gif}',
+                        'images/{,*/}*.{webp,gif,png}',
                         '_locales/{,*/}*.json'
                     ]
                 }, {
@@ -245,16 +226,15 @@ module.exports = function (grunt) {
         concurrent: {
             server: [
                 'coffee:dist',
-                'compass:server'
+                'sass'
             ],
             test: [
                 'coffee',
-                'compass'
+                'sass'
             ],
             dist: [
                 'coffee',
-                'compass:dist',
-                'imagemin',
+                'sass:dist',
                 'svgmin',
                 'htmlmin'
             ]
